@@ -1,50 +1,20 @@
-# Student-Success Data Quality Checks
+# Banner-Style Datamart SQL Patterns
 
-Privacy-safe Python and SQL patterns for reviewing student-success data quality. Every example runs on **synthetic data** — this repo demonstrates *how* to check data, never with real student records.
+Sanitized, reusable SQL patterns for the reporting logic every institutional research shop rebuilds: cohort definitions, term-to-term retention, DFW rates, and course outcomes.
 
-## Why this exists
+- **Generic schema.** Table and column names follow common higher-ed warehouse conventions (`student`, `enrollment`, `course_section`). No real institution names, no vendor-proprietary objects.
+- **Commented like production code.** Each query states its grain, its definitions, and its edge cases — because the next analyst inherits your WHERE clause.
+- **Dialect:** standard SQL (tested mentally against Postgres/Snowflake/Trino). Window functions used throughout.
 
-In institutional research, the most expensive mistakes are silent: a join that drops 4% of students, a GPA field that suddenly allows 9.99, a "current term" flag that points at last year. These checks are the ones I run before any analysis leaves my desk.
+## Query index
 
-## What's inside
+| # | Query | Answers |
+|---|---|---|
+| 1 | `cohort_definition` | Who is in the Fall 2023 first-time freshman cohort? |
+| 2 | `term_to_term_retention` | What % persisted from each term to the next, by cohort? |
+| 3 | `fall_to_fall_retention` | The official retention KPI: fall entrants enrolled next fall. |
+| 4 | `dfw_rates` | D/F/Withdraw rates by college and course level. |
+| 5 | `course_outcomes` | Grade distribution and pass rates by course section. |
+| 6 | `stopout_vs_dropout` | Of non-returners, who came back within 2 terms? |
 
-| Path | Description |
-|---|---|
-| `dq_checks.py` | Pandas-based check functions: null rates, duplicate keys, range/domain checks, referential integrity. Returns a structured report. |
-| `dq_checks.sql` | The same checks expressed in SQL for warehouse-side validation. |
-| `PRIVACY.md` | The privacy rules these patterns are designed around. |
-
-## Quickstart
-
-```python
-import pandas as pd
-from dq_checks import run_all_checks
-
-enrollment = pd.read_csv("synthetic_enrollment.csv")   # synthetic!
-terms = pd.read_csv("synthetic_terms.csv")             # synthetic!
-
-report = run_all_checks(
-    enrollment,
-    key="student_id",
-    reference_tables={"terms": (terms, "term_code")},
-    numeric_ranges={"term_gpa": (0.0, 4.0), "credits_attempted": (0, 24)},
-)
-print(report.to_markdown())
-```
-
-Each check returns pass/warn/fail with the offending row count and a sample of keys — never full PII.
-
-## The check catalog
-
-1. **Null-rate check** — % null per column vs. an expected baseline; fails at 2× baseline.
-2. **Duplicate-key check** — the grain key (`student_id` + `term`) must be unique.
-3. **Range check** — numerics inside plausible bounds (GPA 0–4, credits 0–24).
-4. **Domain check** — categoricals inside an allowed value list (catches "Falll 2024" typos and new codes).
-5. **Referential integrity** — every foreign key exists in its parent table (orphan enrollments = dropped students downstream).
-6. **Freshness check** — max load timestamp vs. expected; stale data fails loudly.
-
-## Design rules
-
-- Checks return **data**, not just prints — a DataFrame report you can log, trend, and alert on.
-- Samples show **keys only**, capped at 5 rows. Full-row dumps of student data are never the output.
-- SQL and Python versions implement the **same logic** so warehouse and analyst-layer results can be reconciled.
+See `schema.md` for the assumed table structures, then `reporting_patterns.sql`.
