@@ -12,6 +12,8 @@ Built as a portfolio piece demonstrating how an institutional research analyst w
 | `dashboard_spec.md` | Full dashboard specification: 4 pages, KPIs, filters, layouts, and stakeholder notes. |
 | `data_dictionary.md` | Field-level documentation for the synthetic dataset. |
 
+The `scripts/` directory holds `generate_synthetic_retention_data.py`, a standalone generator that builds a synthetic, student-level retention-prediction dataset (3,000 seeded rows with retention probabilities, risk percentiles, and HIGH/MODERATE/LOW risk flags) and writes it to `data/synthetic_retention_predictions.csv` for the dashboard's model-QA views.
+
 ## Quickstart
 
 ```bash
@@ -23,10 +25,10 @@ The generator prints a summary (cohort size, overall retention rate, DFW rate) s
 
 ## The 4 dashboard pages
 
-1. **Executive Overview** — headline KPIs for leadership: fall-to-fall retention, 6-year graduation proxy, DFW rate, equity gap headline.
-2. **Persistence & Retention** — term-to-term persistence curves by entry cohort, with drill-downs by college, admit type, and first-gen status.
-3. **Equity Gaps** — disaggregated outcomes (Pell-eligible, first-gen, URM status) with gap-vs-reference-group calculations and plain-language callouts.
-4. **Technical QA** — the analyst's page: data freshness, row-count reconciliation vs. the warehouse, null-rate monitors, and model QA metrics (only shown if a risk model is connected).
+1. **Executive Overview** -- headline KPIs for leadership: fall-to-fall retention, 6-year graduation proxy, DFW rate, equity gap headline.
+2. **Persistence & Retention** -- term-to-term persistence curves by entry cohort, with drill-downs by college, admit type, and first-gen status.
+3. **Equity Gaps** -- disaggregated outcomes (Pell-eligible, first-gen, URM status) with gap-vs-reference-group calculations and plain-language callouts.
+4. **Technical QA** -- the analyst's page: data freshness, row-count reconciliation vs. the warehouse, null-rate monitors, and model QA metrics (only shown if a risk model is connected).
 
 See `dashboard_spec.md` for the complete spec an actual BI developer could build from.
 
@@ -40,4 +42,4 @@ See `dashboard_spec.md` for the complete spec an actual BI developer could build
 
 - Python 3.9+, `pandas`, `numpy` only — no heavy dependencies.
 - The generator uses a fixed RNG seed by default so results are reproducible and reviewable.
-- Designed to feed Power BI / Tableau: one flat `student_term` grain table, documented in `data_dictionary.md`.
+- Designed to feed Power BI / Tableau: one flat `student_term` grain table, documented in `data_dictionary.md`
