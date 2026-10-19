@@ -46,7 +46,6 @@ def build_dataset(row_count: int = 3000, seed: int = 20260603) -> pd.DataFrame:
     )
 
     risk_score = (
-        1.8
         - 0.12 * df["spring_total_sch"]
         - 2.4 * df["spring_pass_rate"]
         + 0.55 * df["spring_failed"]
@@ -64,7 +63,7 @@ def build_dataset(row_count: int = 3000, seed: int = 20260603) -> pd.DataFrame:
         "Predicted Not Retained",
     )
 
-    df["risk_percentile"] = df["retention_probability"].rank(pct=True, ascending=False)
+    df["risk_percentile"] = df["retention_probability"].rank(pct=True, ascending=True)
     df["risk_flag"] = pd.qcut(
         df["risk_percentile"],
         q=4,
@@ -85,4 +84,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
